@@ -70,6 +70,14 @@ open class SysWireSignal internal constructor(
     val x: Boolean
         get() = value.x
 
+    fun set() {
+        value = SysWireState.ONE
+    }
+
+    fun reset() {
+        value = SysWireState.ZERO
+    }
+
     override fun update() {
         if (changed) {
             if (value.one && nextValue.zero) {

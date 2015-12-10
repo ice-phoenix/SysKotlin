@@ -5,7 +5,7 @@ import sysk.*
 /**
  * Register for storing any kind of information
  */
-public class Register <T> (name: String, defValue: T, parent: SysModule): SysModule(name, parent) {
+open class Register <T> (name: String, defValue: T, parent: SysModule): SysModule(name, parent) {
 
     val d = input<T>("d")      // data input
     val en = wireInput("en")   // enable

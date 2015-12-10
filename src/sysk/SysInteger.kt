@@ -106,6 +106,11 @@ class SysInteger(
         return SysInteger(resWidth, value * arg.value).truncate(resWidth)
     }
 
+    infix fun cat(arg: SysInteger): SysInteger {
+        val resWidth = Math.min(width + arg.width, MAX_WIDTH)
+        return SysInteger(resWidth, (value shr arg.width) or arg.value)
+    }
+
     /** Bitwise logical shift right*/
     infix fun ushr(shift: Int): SysInteger {
         if (shift == 0)

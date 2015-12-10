@@ -42,6 +42,12 @@ fun <IF : SysInterface> bind(vararg pairs: Pair<SysPort<IF>, IF>) {
     }
 }
 
+fun <IF : SysInterface> bindPorts(vararg pairs: Pair<SysPort<IF>, SysPort<IF>>) {
+    for (pair in pairs) {
+        pair.first.bind(pair.second)
+    }
+}
+
 fun <IF : SysInterface> bindArrays(vararg pairs: Pair<Array<out SysPort<IF>>, Array<out IF>>) {
     for (pair in pairs) {
         pair.first.forEachIndexed { i, sysPort -> sysPort.bind(pair.second[i]) }
