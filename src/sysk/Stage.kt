@@ -25,6 +25,10 @@ interface StageContainer {
         return result
     }
 
+    fun ifStage(f: () -> Boolean) = IfCondition(f, this)
+
+    fun whileStage(f: () -> Boolean) = WhileCondition(f, this)
+
     fun <T> iterativeStage(progression: Iterable<T>, init: Stage.Iterative<T>.() -> Unit): Stage.Iterative<T> {
         val result = Stage.Iterative(progression, wait(), linkedListOf())
         result.init()
@@ -55,13 +59,25 @@ interface StageContainer {
     }
 }
 
-open class Condition(val f: () -> Boolean) {
-    operator fun invoke() = f()
+open class Condition(val condition: () -> Boolean, val container: StageContainer)
+
+class IfCondition(condition: () -> Boolean, container: StageContainer): Condition(condition, container) {
+    fun invoke(init: Stage.If.() -> Unit): Stage.If {
+        val result = Stage.If(condition, container.wait(), linkedListOf())
+        result.init()
+        container.stages.add(result)
+        return result
+    }
 }
 
-class IfCondition(f: () -> Boolean): Condition(f)
-
-class WhileCondition(f: () -> Boolean): Condition(f)
+class WhileCondition(condition: () -> Boolean, container: StageContainer): Condition(condition, container) {
+    fun invoke(init: Stage.While.() -> Unit): Stage.While {
+        val result = Stage.While(condition, container.wait(), linkedListOf())
+        result.init()
+        container.stages.add(result)
+        return result
+    }
+}
 
 sealed class Stage {
 
@@ -85,6 +101,54 @@ sealed class Stage {
         override var stage = 0
 
         override fun run(event: SysWait) = super.run(event)
+
+        override fun complete() = super.complete()
+    }
+
+    class If internal constructor(
+            val condition: () -> Boolean,
+            private val sensitivities: SysWait,
+            override val stages: MutableList<Stage>
+    ) : Stage(), StageContainer {
+        override fun wait() = sensitivities
+
+        override var stage = 0
+
+        override fun run(event: SysWait): SysWait {
+            if (stage > 0 || condition()) {
+                return super.run(event)
+            }
+            else {
+                stage = stages.size
+                return SysWait.Never
+            }
+        }
+
+        override fun complete() = super.complete()
+    }
+
+    class While internal constructor(
+            val condition: () -> Boolean,
+            private val sensitivities: SysWait,
+            override val stages: MutableList<Stage>
+    ) : Stage(), StageContainer {
+        override fun wait() = sensitivities
+
+        override var stage = 0
+
+        override fun run(event: SysWait): SysWait {
+            if (stage > 0 || condition()) {
+                val result = super.run(event)
+                if (super.complete()) {
+                    stage = 0
+                }
+                return result
+            }
+            else {
+                stage = stages.size
+                return SysWait.Never
+            }
+        }
 
         override fun complete() = super.complete()
     }
