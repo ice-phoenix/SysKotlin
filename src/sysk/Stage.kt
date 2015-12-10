@@ -55,6 +55,14 @@ interface StageContainer {
     }
 }
 
+open class Condition(val f: () -> Boolean) {
+    operator fun invoke() = f()
+}
+
+class IfCondition(f: () -> Boolean): Condition(f)
+
+class WhileCondition(f: () -> Boolean): Condition(f)
+
 sealed class Stage {
 
     abstract fun run(event: SysWait): SysWait
