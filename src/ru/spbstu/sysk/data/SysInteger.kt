@@ -13,9 +13,9 @@ annotation class Width(val value: Int)
  * Width can be checked statically (in future) if type usage is annotated by @width annotation
  */
 class SysInteger(
-        val width: Int, val value: Long, defaultBitState: Boolean = false,
+        width: Int, override val value: Long, defaultBitState: Boolean = false,
         private val bitsState: Array<Boolean> = Array(width, { i -> defaultBitState })
-) : SysData {
+) : SysData, BaseInteger(width, value) {
 
     init {
         if (!checkWidth()) {

@@ -3,9 +3,9 @@ package ru.spbstu.sysk.data
 import java.math.BigInteger
 
 class SysBigInteger(
-        val width: Int, val value: BigInteger, defaultBitState: Boolean = false,
+        width: Int, override val value: BigInteger, defaultBitState: Boolean = false,
         private val bitsState: Array<Boolean> = Array(width, { i -> defaultBitState })
-) : SysData {
+) : SysData, BaseInteger(width, value) {
 
     init {
 
